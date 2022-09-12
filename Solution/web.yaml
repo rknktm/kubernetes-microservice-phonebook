@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+  labels:
+    name: web
+spec:
+  type: NodePort
+  selector:
+    name: web
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30500
+      name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: web
+  template:
+    metadata:
+      labels:
+        name: web
+    spec:
+      containers:
+      - name: web
+        image: rknktm/web
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        # env:
+        # - name: MYSQL_DATABASE_HOST
+        #   value: mysql-service
+        # - name: MYSQL_DATABASE
+        #   value: phonebook
+        # - name: MYSQL_USER
+        #   value: rkn
+        # - name: MYSQL_PASSWORD
+        #   value: "123456789"
+        envFrom:
+        - configMapRef:
+            name: my-config
+        - secretRef:
+            name: web-secret
