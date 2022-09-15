@@ -3,33 +3,35 @@ kind: Service
 metadata:
   name: mysql-service
   labels:
-    name: phonebook
+    app: db-mysql
 spec:
   selector:
-    name: phonebook
+    app: db-mysql
   ports:
-    - name: mysql
+    - protocol: TCP
       port: 3306
       targetPort: 3306
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db-phonebook
+  name: db-mysql
+  labels:
+    app: db-mysql
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: phonebook
+      app: db-mysql
   template:
     metadata:
       labels:
-        name: phonebook
-
+        app: db-mysql
     spec:
       containers:
-      - image: mysql:5.7
-        name: phonebook
+      - name: db-mysql
+        image: mysql:5.7
+        imagePullPolicy: Always
         ports:
         - containerPort: 3306
         envFrom:

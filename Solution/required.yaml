@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-volume
+spec:
+  storageClassName: rkn
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/database
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: rkn
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  MYSQL_USER: cmtu
+  MYSQL_PASSWORD: YjEyMzQ1Njc4Qg==
+  MYSQL_DATABASE: cGhvbmVib29r
+  MYSQL_ROOT_PASSWORD: YTEyMzQ1Njc4QQ==
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: web-secret
+type: Opaque
+data:
+  MYSQL_USER: cmtu
+  MYSQL_PASSWORD: YjEyMzQ1Njc4Qg==
+  MYSQL_DATABASE: cGhvbmVib29r
+---
+apiVersion: v1
+kind: ConfigMap 
+metadata: 
+  name: web-config 
+data:
+  MYSQL_DATABASE_HOST: mysql-service

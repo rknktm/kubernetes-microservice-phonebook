@@ -3,33 +3,35 @@ kind: Service
 metadata:
   name: web-service
   labels:
-    name: web
+    app: webserver
 spec:
   type: NodePort
   selector:
-    name: web
+    app: webserver
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30500
-      name: http
+      nodePort: 30200
+      protocol: TCP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-deployment
+  name: webserver
+  labels:
+    app: webserver
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: web
+      app: webserver
   template:
     metadata:
       labels:
-        name: web
+        app: webserver
     spec:
       containers:
-      - name: web
+      - name: webserver
         image: rknktm/web
         imagePullPolicy: Always
         ports:
@@ -42,9 +44,61 @@ spec:
         # - name: MYSQL_USER
         #   value: rkn
         # - name: MYSQL_PASSWORD
-        #   value: "123456789"
+        #   value: "b12345678B"
         envFrom:
         - configMapRef:
-            name: my-config
+            name: web-config
+        - secretRef:
+            name: web-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-service
+spec:
+  type: NodePort
+  selector:
+    app: search
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30400
+      protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search
+  labels:
+    app: search
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search
+  template:
+    metadata:
+      labels:
+        app: search
+    spec:
+      containers:
+      - name: search
+        image: rknktm/search
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        # env:
+        # - name: MYSQL_DATABASE_HOST
+        #   value: mysql-service
+        # - name: MYSQL_DATABASE
+        #   value: phonebook
+        # - name: MYSQL_USER
+        #   value: rkn
+        # - name: MYSQL_PASSWORD
+        #   value: "b12345678B"
+        envFrom:
+        - configMapRef:
+            name: web-config
         - secretRef:
             name: web-secret
